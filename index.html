@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<title>Regnestykker</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14pt;
+    margin: 2cm;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin: 0.4em 0;
+  }
+  @media print {
+    body {
+      margin: 1.5cm;
+    }
+  }
+</style>
+</head>
+<body>
+
+<ul id="tasks"></ul>
+
+<script>
+/* ---------- DATO SOM FAST ANKER ---------- */
+const today = new Date().toISOString().slice(0, 10);
+
+/* Deterministisk pseudo-random generator */
+function seededRandom(seed) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h *= 16777619;
+  }
+  return function () {
+    h += h << 13; h ^= h >>> 7;
+    h += h << 3;  h ^= h >>> 17;
+    h += h << 5;
+    return (h >>> 0) / 4294967296;
+  };
+}
+
+const rand = seededRandom(today);
+
+function r(min, max, decimals = 1) {
+  const n = min + rand() * (max - min);
+  return Number(n.toFixed(decimals));
+}
+
+const tasks = [];
+
+/* ---------- 5 PLUS (1 decimal) ---------- */
+for (let i = 0; i < 5; i++) {
+  const a = r(1, 99);
+  const b = r(1, 99);
+  tasks.push(`${a} + ${b} =`);
+}
+
+/* ---------- 5 MINUS (1 decimal, positivt resultat) ---------- */
+for (let i = 0; i < 5; i++) {
+  let a = r(10, 99);
+  let b = r(1, a);
+  tasks.push(`${a} - ${b} =`);
+}
+
+/* ---------- 5 GANGE (1 decimal, 10–99) ---------- */
+for (let i = 0; i < 5; i++) {
+  const a = r(10, 99);
+  const b = r(10, 99);
+  tasks.push(`${a} · ${b} =`);
+}
+
+/* ---------- 5 DIVISION (ingen rest, divisor 3–10) ---------- */
+for (let i = 0; i < 5; i++) {
+  const divisor = Math.floor(3 + rand() * 8); // 3–10
+  const quotient = Math.floor(2 + rand() * 18);
+  const dividend = divisor * quotient;
+  tasks.push(`${dividend} : ${divisor} =`);
+}
+
+/* ---------- VIS ---------- */
+const ul = document.getElementById("tasks");
+tasks.forEach(t => {
+  const li = document.createElement("li");
+  li.textContent = t;
+  ul.appendChild(li);
+});
+</script>
+
+</body>
+</html>
