@@ -6,21 +6,21 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    font-size: 18pt;        /* STØRRE TEKST */
-    line-height: 1.5;
+    font-size: 16pt;   /* lidt mindre igen */
+    line-height: 1.45;
     margin: 2cm;
   }
   ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
   }
   li {
-    margin: 0.6em 0;
+    margin: 0.5em 0;
   }
   @media print {
     body {
       margin: 1.5cm;
-      font-size: 18pt;
+      font-size: 16pt;
     }
   }
 </style>
@@ -30,8 +30,10 @@
 <ul id="tasks"></ul>
 
 <script>
+/* ---------- DATO SOM FAST ANKER ---------- */
 const today = new Date().toISOString().slice(0, 10);
 
+/* Deterministisk pseudo-random generator */
 function seededRandom(seed) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
@@ -45,41 +47,53 @@ function seededRandom(seed) {
     return (h >>> 0) / 4294967296;
   };
 }
-
 const rand = seededRandom(today);
 
-function r(min, max, decimals = 1) {
+/* Decimal med komma */
+function dec(min, max) {
   const n = min + rand() * (max - min);
-  return n.toFixed(decimals).replace(".", ",");
+  return n.toFixed(1).replace(".", ",");
+}
+
+/* Heltal */
+function int(min, max) {
+  return Math.floor(min + rand() * (max - min + 1));
 }
 
 const tasks = [];
 
-/* 5 PLUS */
+/* ---------- 5 PLUS (1 decimal) ---------- */
 for (let i = 0; i < 5; i++) {
-  tasks.push(`${r(1,99)} + ${r(1,99)} =`);
+  tasks.push(`${dec(1,99)} + ${dec(1,99)} =`);
 }
 
-/* 5 MINUS */
+/* ---------- 5 MINUS (1 decimal, positivt) ---------- */
 for (let i = 0; i < 5; i++) {
-  let a = r(10,99);
-  let b = r(1, Number(a.replace(",", ".")));
+  const a = dec(10,99);
+  const b = dec(1, Number(a.replace(",", ".")));
   tasks.push(`${a} - ${b} =`);
 }
 
-/* 5 GANGE */
+/* ---------- 5 GANGE (tocifret · tocifret, ingen decimaler) ---------- */
 for (let i = 0; i < 5; i++) {
-  tasks.push(`${r(10,99)} · ${r(10,99)} =`);
+  const a = int(10,99);
+  const b = int(10,99);
+  tasks.push(`${a} · ${b} =`);
 }
 
-/* 5 DIVISION */
+/* ---------- 5 DIVISION (trecifret : 2–10, ingen rest) ---------- */
 for (let i = 0; i < 5; i++) {
-  const divisor = Math.floor(3 + rand() * 8);
-  const quotient = Math.floor(2 + rand() * 18);
-  tasks.push(`${divisor * quotient} : ${divisor} =`);
+  const divisor = int(2,10);
+  const quotient = int(10, 99);
+  const dividend = divisor * quotient; // giver altid 3-cifret eller tæt på
+  if (dividend >= 100 && dividend <= 999) {
+    tasks.push(`${dividend} : ${divisor} =`);
+  } else {
+    i--; // prøv igen hvis ikke trecifret
+  }
 }
 
-/* VIS MED a–t */
+/* ---------- VIS MED a–t ---------- */
 const ul = document.getElementById("tasks");
 tasks.forEach((task, index) => {
   const li = document.createElement("li");
