@@ -6,7 +6,8 @@
 <style>
   body {
     font-family: Arial, sans-serif;
-    font-size: 14pt;
+    font-size: 18pt;        /* STØRRE TEKST */
+    line-height: 1.5;
     margin: 2cm;
   }
   ul {
@@ -14,11 +15,12 @@
     padding: 0;
   }
   li {
-    margin: 0.4em 0;
+    margin: 0.6em 0;
   }
   @media print {
     body {
       margin: 1.5cm;
+      font-size: 18pt;
     }
   }
 </style>
@@ -28,10 +30,8 @@
 <ul id="tasks"></ul>
 
 <script>
-/* ---------- DATO SOM FAST ANKER ---------- */
 const today = new Date().toISOString().slice(0, 10);
 
-/* Deterministisk pseudo-random generator */
 function seededRandom(seed) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
@@ -50,45 +50,40 @@ const rand = seededRandom(today);
 
 function r(min, max, decimals = 1) {
   const n = min + rand() * (max - min);
-  return Number(n.toFixed(decimals));
+  return n.toFixed(decimals).replace(".", ",");
 }
 
 const tasks = [];
 
-/* ---------- 5 PLUS (1 decimal) ---------- */
+/* 5 PLUS */
 for (let i = 0; i < 5; i++) {
-  const a = r(1, 99);
-  const b = r(1, 99);
-  tasks.push(`${a} + ${b} =`);
+  tasks.push(`${r(1,99)} + ${r(1,99)} =`);
 }
 
-/* ---------- 5 MINUS (1 decimal, positivt resultat) ---------- */
+/* 5 MINUS */
 for (let i = 0; i < 5; i++) {
-  let a = r(10, 99);
-  let b = r(1, a);
+  let a = r(10,99);
+  let b = r(1, Number(a.replace(",", ".")));
   tasks.push(`${a} - ${b} =`);
 }
 
-/* ---------- 5 GANGE (1 decimal, 10–99) ---------- */
+/* 5 GANGE */
 for (let i = 0; i < 5; i++) {
-  const a = r(10, 99);
-  const b = r(10, 99);
-  tasks.push(`${a} · ${b} =`);
+  tasks.push(`${r(10,99)} · ${r(10,99)} =`);
 }
 
-/* ---------- 5 DIVISION (ingen rest, divisor 3–10) ---------- */
+/* 5 DIVISION */
 for (let i = 0; i < 5; i++) {
-  const divisor = Math.floor(3 + rand() * 8); // 3–10
+  const divisor = Math.floor(3 + rand() * 8);
   const quotient = Math.floor(2 + rand() * 18);
-  const dividend = divisor * quotient;
-  tasks.push(`${dividend} : ${divisor} =`);
+  tasks.push(`${divisor * quotient} : ${divisor} =`);
 }
 
-/* ---------- VIS ---------- */
+/* VIS MED a–t */
 const ul = document.getElementById("tasks");
-tasks.forEach(t => {
+tasks.forEach((task, index) => {
   const li = document.createElement("li");
-  li.textContent = t;
+  li.textContent = `${String.fromCharCode(97 + index)}) ${task}`;
   ul.appendChild(li);
 });
 </script>
