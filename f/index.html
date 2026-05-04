@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<title>Regnestykker med facit</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 16pt;
+    line-height: 1.45;
+    margin: 2cm;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin: 0.5em 0;
+  }
+  @media print {
+    body {
+      margin: 1.5cm;
+      font-size: 16pt;
+    }
+  }
+</style>
+</head>
+<body>
+
+<ul id="tasks"></ul>
+
+<script>
+/* ---------- DATO SOM FAST ANKER ---------- */
+const today = new Date().toISOString().slice(0, 10);
+
+/* Deterministisk pseudo-random generator */
+function seededRandom(seed) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h *= 16777619;
+  }
+  return function () {
+    h += h << 13; h ^= h >>> 7;
+    h += h << 3;  h ^= h >>> 17;
+    h += h << 5;
+    return (h >>> 0) / 4294967296;
+  };
+}
+const rand = seededRandom(today);
+
+/* Hjælpere */
+function dec(min, max) {
+  const n = min + rand() * (max - min);
+  return Number(n.toFixed(1));
+}
+function int(min, max) {
+  return Math.floor(min + rand() * (max - min + 1));
+}
+function fmt(n) {
+  return String(n).replace(".", ",");
+}
+
+const tasks = [];
+
+/* ---------- PLUS ---------- */
+for (let i = 0; i < 5; i++) {
+  const a = dec(1,99);
+  const b = dec(1,99);
+  tasks.push(`${fmt(a)} + ${fmt(b)} = ${fmt((a + b).toFixed(1))}`);
+}
+
+/* ---------- MINUS ---------- */
+for (let i = 0; i < 5; i++) {
+  const a = dec(10,99);
+  const b = dec(1,a);
+  tasks.push(`${fmt(a)} - ${fmt(b)} = ${fmt((a - b).toFixed(1))}`);
+}
+
+/* ---------- GANGE ---------- */
+for (let i = 0; i < 5; i++) {
+  const a = int(10,99);
+  const b = int(10,99);
+  tasks.push(`${a} · ${b} = ${a * b}`);
+}
+
+/* ---------- DIVISION ---------- */
+let count = 0;
+while (count < 5) {
+  const divisor = int(2,10);
+  const quotient = int(10,99);
+  const dividend = divisor * quotient;
+  if (dividend >= 100 && dividend <= 999) {
+    tasks.push(`${dividend} : ${divisor} = ${quotient}`);
+    count++;
+  }
+}
+
+/* ---------- VIS MED a–t ---------- */
+const ul = document.getElementById("tasks");
+tasks.forEach((task, i) => {
+  const li = document.createElement("li");
+  li.textContent = `${String.fromCharCode(97 + i)}) ${task}`;
+  ul.appendChild(li);
+});
+</script>
+
+</body>
+</html>
